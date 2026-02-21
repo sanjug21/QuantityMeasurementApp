@@ -1,3 +1,5 @@
 com\example\QuantityLength.class
 com\example\QuantityMeasurementApp.class
 com\example\LengthUnit.class
+com\example\QuantityWeight.class
+com\example\WeightUnit.class

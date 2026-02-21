@@ -1,0 +1,4 @@
+# Created at 2026-02-21T15:03:15.745
+Boot Manifest-JAR contains absolute paths in classpath 'd:\Software\capgemini\QuantityMeasurementApp\target\test-classes'
+Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+
