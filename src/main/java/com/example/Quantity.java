@@ -40,8 +40,28 @@ public class Quantity<U extends Measurable> {
             throw new IllegalArgumentException("Result unit must not be null.");
         }
         
+        // Validate that the unit supports subtraction
+        this.unit.validateOperationSupport("SUBTRACT");
+        
         double resultBaseValue = performArithmeticOperation(other, AirthmaticOperation.SUBTRACT);
-        double resultValue = resultUnit.convertFromBaseUnit(resultBaseValue);
+        double resultValue;
+        
+        // Special handling for TemperatureUnit: differences are relative, not absolute
+        if (this.unit instanceof TemperatureUnit) {
+            TemperatureUnit tempUnit = (TemperatureUnit) resultUnit;
+            // For temperature differences, convert difference in Kelvin to difference in target unit
+            // 1K difference = 1°C difference = 1.8°F difference
+            if (tempUnit == TemperatureUnit.CELSIUS) {
+                resultValue = resultBaseValue; // K difference = °C difference
+            } else if (tempUnit == TemperatureUnit.FAHRENHEIT) {
+                resultValue = resultBaseValue * (9.0 / 5.0); // K difference = 1.8 * °F difference
+            } else {
+                resultValue = resultBaseValue; // KELVIN
+            }
+        } else {
+            resultValue = resultUnit.convertFromBaseUnit(resultBaseValue);
+        }
+        
         // Round to two decimal places for precision
         resultValue = Math.round(resultValue * 100.0) / 100.0;
         return new Quantity<>(resultValue, resultUnit);
@@ -55,6 +75,9 @@ public class Quantity<U extends Measurable> {
         if (resultUnit == null) {
             throw new IllegalArgumentException("Result unit must not be null.");
         }
+        
+        // Validate that the unit supports division
+        this.unit.validateOperationSupport("DIVIDE");
         
         double ratio = performArithmeticOperation(other, AirthmaticOperation.DIVIDE);
         // Round to two decimal places for precision
@@ -91,6 +114,9 @@ public class Quantity<U extends Measurable> {
         if (resultUnit == null) {
             throw new IllegalArgumentException("Result unit must not be null.");
         }
+        
+        // Validate that the unit supports addition
+        this.unit.validateOperationSupport("ADD");
         
         double resultBaseValue = performArithmeticOperation(other, AirthmaticOperation.ADD);
         double resultValue = resultUnit.convertFromBaseUnit(resultBaseValue);

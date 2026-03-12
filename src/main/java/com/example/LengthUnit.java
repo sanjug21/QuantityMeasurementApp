@@ -8,6 +8,8 @@ public enum LengthUnit implements Measurable {
 
     private final double conversionFactor;
     private final String unitName;
+    // Lambda expression: LengthUnit supports arithmetic operations
+    private final SupportsArithmetic supportsArithmetic = () -> true;
 
     LengthUnit(double conversionFactor, String unitName) {
         this.conversionFactor = conversionFactor;
@@ -36,5 +38,10 @@ public enum LengthUnit implements Measurable {
     @Override
     public String getUnitName() {
         return unitName;
+    }
+    
+    @Override
+    public SupportsArithmetic getSupportsArithmetic() {
+        return supportsArithmetic;
     }
 }

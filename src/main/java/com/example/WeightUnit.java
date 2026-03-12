@@ -7,7 +7,8 @@ public enum WeightUnit implements Measurable {
 
     private final double conversionFactor;
     private final String unitName;
-    
+    // Lambda expression: WeightUnit supports arithmetic operations
+    private final SupportsArithmetic supportsArithmetic = () -> true;
 
     WeightUnit(double conversionFactor, String unitName) {
         this.conversionFactor = conversionFactor;
@@ -36,5 +37,10 @@ public enum WeightUnit implements Measurable {
     @Override
     public String getUnitName() {
         return unitName;
+    }
+    
+    @Override
+    public SupportsArithmetic getSupportsArithmetic() {
+        return supportsArithmetic;
     }
 }

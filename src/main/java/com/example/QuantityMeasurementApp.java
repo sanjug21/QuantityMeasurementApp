@@ -336,6 +336,85 @@ public class QuantityMeasurementApp {
         return lb1.equals(lb2);
     }
 
+    // ===== TEMPERATURE SUPPORT METHODS (UC14) =====
+    // These methods demonstrate temperature with selective arithmetic support
+
+    public static double convertTemperature(double value, TemperatureUnit source, TemperatureUnit target) {
+        return QuantityMeasurementApp.convert(value, source, target);
+    }
+
+    public static void demonstrateTemperatureEquality(QuantityTemperature temp1, QuantityTemperature temp2) {
+        if (temp1 == null || temp2 == null) {
+            throw new IllegalArgumentException("Both temperatures must not be null.");
+        }
+        boolean isEqual = temp1.equals(temp2);
+        System.out.printf("  Temperature Equality: %s equals %s: %s%n", temp1, temp2, isEqual);
+    }
+
+    public static void demonstrateTemperatureConversion(QuantityTemperature temp, TemperatureUnit targetUnit) {
+        if (temp == null || targetUnit == null) {
+            throw new IllegalArgumentException("Both temperature and target unit must not be null.");
+        }
+        QuantityTemperature converted = temp.convertTo(targetUnit);
+        System.out.printf("  Temperature Conversion: %s → %s = %s%n", temp, targetUnit.getUnitName(), converted);
+    }
+
+    public static void demonstrateTemperatureSubtraction(QuantityTemperature temp1, QuantityTemperature temp2) {
+        if (temp1 == null || temp2 == null) {
+            throw new IllegalArgumentException("Both temperatures must not be null.");
+        }
+        QuantityTemperature difference = temp1.subtract(temp2);
+        System.out.printf("  Temperature Difference: %s - %s = %s%n", temp1, temp2, difference);
+    }
+
+    public static void demonstrateUnsupportedTemperatureAddition(QuantityTemperature temp1, QuantityTemperature temp2) {
+        if (temp1 == null || temp2 == null) {
+            throw new IllegalArgumentException("Both temperatures must not be null.");
+        }
+        try {
+            temp1.add(temp2);
+            System.out.printf("  ERROR: Should have thrown UnsupportedOperationException for addition!%n");
+        } catch (UnsupportedOperationException e) {
+            System.out.printf("  Unsupported Addition: %s + %s throws: %s%n", 
+                temp1, temp2, e.getMessage());
+        }
+    }
+
+    public static void demonstrateUnsupportedTemperatureDivision(QuantityTemperature temp1, QuantityTemperature temp2) {
+        if (temp1 == null || temp2 == null) {
+            throw new IllegalArgumentException("Both temperatures must not be null.");
+        }
+        try {
+            temp1.divide(temp2);
+            System.out.printf("  ERROR: Should have thrown UnsupportedOperationException for division!%n");
+        } catch (UnsupportedOperationException e) {
+            System.out.printf("  Unsupported Division: %s / %s throws: %s%n", 
+                temp1, temp2, e.getMessage());
+        }
+    }
+
+    public static void demonstrateUnsupportedTemperatureMultiplication(QuantityTemperature temp, double scalar) {
+        if (temp == null) {
+            throw new IllegalArgumentException("Temperature must not be null.");
+        }
+        try {
+            temp.multiply(scalar);
+            System.out.printf("  ERROR: Should have thrown UnsupportedOperationException for multiplication!%n");
+        } catch (UnsupportedOperationException e) {
+            System.out.printf("  Unsupported Multiplication: %s * %f throws: %s%n", 
+                temp, scalar, e.getMessage());
+        }
+    }
+
+    public static void demonstrateTemperatureCrossCategorySafety() {
+        QuantityTemperature celsius = new QuantityTemperature(25.0, TemperatureUnit.CELSIUS);
+        Quantity<LengthUnit> feet = new Quantity<>(5.0, LengthUnit.FEET);
+        
+        boolean isEqual = celsius.equals(feet);
+        System.out.printf("  Cross-Category Type Safety: %s equals %s: %s (should be false)%n", 
+            celsius, feet, isEqual);
+    }
+
    
     
     public static void main(String[] args) {
@@ -395,7 +474,39 @@ public class QuantityMeasurementApp {
             litre2.toBaseUnit(), ml500.toBaseUnit(), AirthmaticOperation.DIVIDE);
         System.out.printf("  Result: %s%n", litre2.divide(ml500));
         
-       
+        // Temperature Operations (UC14)
+        System.out.println("\nTEMPERATURE OPERATIONS (UC14 - Selective Arithmetic Support):");
+        QuantityTemperature celsius0 = new QuantityTemperature(0.0, TemperatureUnit.CELSIUS);
+        QuantityTemperature celsius25 = new QuantityTemperature(25.0, TemperatureUnit.CELSIUS);
+        QuantityTemperature fahrenheit32 = new QuantityTemperature(32.0, TemperatureUnit.FAHRENHEIT);
+        QuantityTemperature kelvin273 = new QuantityTemperature(273.15, TemperatureUnit.KELVIN);
         
+        System.out.println("\n  Supported Operations:");
+        System.out.println("    1. Temperature Equality (same and different units):");
+        demonstrateTemperatureEquality(celsius0, kelvin273);
+        demonstrateTemperatureEquality(celsius25, fahrenheit32);
+        
+        System.out.println("    2. Temperature Conversion (all unit pairs):");
+        demonstrateTemperatureConversion(celsius25, TemperatureUnit.FAHRENHEIT);
+        demonstrateTemperatureConversion(fahrenheit32, TemperatureUnit.CELSIUS);
+        demonstrateTemperatureConversion(celsius0, TemperatureUnit.KELVIN);
+        
+        System.out.println("    3. Temperature Subtraction (calculates temperature difference):");
+        demonstrateTemperatureSubtraction(celsius25, celsius0);
+        demonstrateTemperatureSubtraction(fahrenheit32, new QuantityTemperature(32.0, TemperatureUnit.FAHRENHEIT));
+        
+        System.out.println("\n  Unsupported Operations:");
+        System.out.println("    4. Addition throws UnsupportedOperationException:");
+        demonstrateUnsupportedTemperatureAddition(celsius25, celsius0);
+        
+        System.out.println("    5. Division throws UnsupportedOperationException:");
+        demonstrateUnsupportedTemperatureDivision(celsius25, celsius0);
+        
+        System.out.println("    6. Multiplication throws UnsupportedOperationException:");
+        demonstrateUnsupportedTemperatureMultiplication(celsius25, 2.0);
+        
+        System.out.println("\n  Cross-Category Type Safety:");
+        System.out.println("    7. Temperature cannot equal other categories:");
+        demonstrateTemperatureCrossCategorySafety();
     }
 }
