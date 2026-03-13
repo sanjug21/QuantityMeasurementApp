@@ -1,5 +1,6 @@
-package com.example;
+package com.example.domain;
 
+import java.util.Locale;
 import java.util.function.Function;
 
 public enum TemperatureUnit implements Measurable {
@@ -72,6 +73,23 @@ public enum TemperatureUnit implements Measurable {
     @Override
     public String getUnitName() {
         return unitName;
+    }
+
+    @Override
+    public MeasurementType getMeasurementType() {
+        return MeasurementType.TEMPERATURE;
+    }
+
+    @Override
+    public Measurable getUnitByName(String unitName) {
+        return fromUnitName(unitName);
+    }
+
+    public static TemperatureUnit fromUnitName(String unitName) {
+        if (unitName == null || unitName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Temperature unit name must not be blank.");
+        }
+        return TemperatureUnit.valueOf(unitName.trim().toUpperCase(Locale.ROOT));
     }
     
     @Override

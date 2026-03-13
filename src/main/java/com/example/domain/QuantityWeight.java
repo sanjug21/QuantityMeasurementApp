@@ -1,4 +1,4 @@
-package com.example;
+package com.example.domain;
 
 public class QuantityWeight {
     private static final double EPSILON = 1e-6;

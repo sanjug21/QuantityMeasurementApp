@@ -1,4 +1,4 @@
-package com.example;
+package com.example.domain;
 
 import java.util.Objects;
 
@@ -15,10 +15,24 @@ public class Quantity<U extends Measurable> {
         this.value = value;
     }
 
+    private void validateCompatibleUnit(U otherUnit, String operation) {
+        if (otherUnit == null) {
+            throw new IllegalArgumentException("Unit must not be null.");
+        }
+        if (!this.unit.isCompatibleWith(otherUnit)) {
+            throw new IllegalArgumentException(String.format(
+                    "Operation '%s' requires compatible measurement types but found '%s' and '%s'.",
+                    operation,
+                    this.unit.getMeasurementType(),
+                    otherUnit.getMeasurementType()));
+        }
+    }
+
     private double performArithmeticOperation(Quantity<U> other, AirthmaticOperation operation) {
         if (other == null) {
             throw new IllegalArgumentException("Other quantity must not be null.");
         }
+        validateCompatibleUnit(other.unit, operation.name());
         
         double thisBaseValue = this.toBaseUnit();
         double otherBaseValue = other.toBaseUnit();
@@ -39,6 +53,7 @@ public class Quantity<U extends Measurable> {
         if (resultUnit == null) {
             throw new IllegalArgumentException("Result unit must not be null.");
         }
+        validateCompatibleUnit(resultUnit, "SUBTRACT");
         
         // Validate that the unit supports subtraction
         this.unit.validateOperationSupport("SUBTRACT");
@@ -75,6 +90,7 @@ public class Quantity<U extends Measurable> {
         if (resultUnit == null) {
             throw new IllegalArgumentException("Result unit must not be null.");
         }
+        validateCompatibleUnit(resultUnit, "DIVIDE");
         
         // Validate that the unit supports division
         this.unit.validateOperationSupport("DIVIDE");
@@ -87,6 +103,7 @@ public class Quantity<U extends Measurable> {
 
     public Quantity<U> convertTo(U targetUnit) {
         Objects.requireNonNull(targetUnit, "Target unit must not be null.");
+        validateCompatibleUnit(targetUnit, "CONVERT");
         double valueInBaseUnit = unit.convertToBaseUnit(value);
         double convertedValue = targetUnit.convertFromBaseUnit(valueInBaseUnit);
         // Round to two decimal places for precision
@@ -114,6 +131,7 @@ public class Quantity<U extends Measurable> {
         if (resultUnit == null) {
             throw new IllegalArgumentException("Result unit must not be null.");
         }
+        validateCompatibleUnit(resultUnit, "ADD");
         
         // Validate that the unit supports addition
         this.unit.validateOperationSupport("ADD");
@@ -140,8 +158,7 @@ public class Quantity<U extends Measurable> {
         @SuppressWarnings("unchecked")
         Quantity<U> other = (Quantity<U>) obj;
         
-        // Check that both use the same unit type (prevents cross-category comparison)
-        if (this.unit.getClass() != other.unit.getClass()) {
+        if (!this.unit.isCompatibleWith(other.unit)) {
             return false;
         }
         

@@ -1,4 +1,6 @@
-package com.example;
+package com.example.domain;
+
+import java.util.Locale;
 
 public enum VolumeUnit implements Measurable {
     LITRE(1.0, "LITRE"),
@@ -37,6 +39,23 @@ public enum VolumeUnit implements Measurable {
     @Override
     public String getUnitName() {
         return unitName;
+    }
+
+    @Override
+    public MeasurementType getMeasurementType() {
+        return MeasurementType.VOLUME;
+    }
+
+    @Override
+    public Measurable getUnitByName(String unitName) {
+        return fromUnitName(unitName);
+    }
+
+    public static VolumeUnit fromUnitName(String unitName) {
+        if (unitName == null || unitName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Volume unit name must not be blank.");
+        }
+        return VolumeUnit.valueOf(unitName.trim().toUpperCase(Locale.ROOT));
     }
     
     @Override

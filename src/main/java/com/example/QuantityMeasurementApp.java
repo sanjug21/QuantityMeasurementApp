@@ -1,8 +1,32 @@
 package com.example;
 
+import com.example.controller.QuantityMeasurementController;
+import com.example.domain.LengthUnit;
+import com.example.domain.Measurable;
+import com.example.domain.Quantity;
+import com.example.domain.QuantityTemperature;
+import com.example.domain.TemperatureUnit;
+import com.example.domain.WeightUnit;
+import com.example.dto.QuantityDTO;
+import com.example.factory.QuantityMeasurementFactory;
 
 public class QuantityMeasurementApp {
     private static final double EPSILON = 1e-6;
+    private static final QuantityMeasurementApp INSTANCE = new QuantityMeasurementApp();
+
+    private final QuantityMeasurementController controller;
+
+    private QuantityMeasurementApp() {
+        this.controller = QuantityMeasurementFactory.createController();
+    }
+
+    public static QuantityMeasurementApp getInstance() {
+        return INSTANCE;
+    }
+
+    public QuantityMeasurementController getController() {
+        return controller;
+    }
 
     public static <U extends Measurable> double convert(double value, U source, U target) {
         if (Double.isNaN(value) || Double.isInfinite(value)) {
@@ -14,7 +38,7 @@ public class QuantityMeasurementApp {
         if (target == null) {
             throw new IllegalArgumentException("Target unit must not be null.");
         }
-        
+
         Quantity<U> quantity = new Quantity<>(value, source);
         return quantity.convertTo(target).getValue();
     }
@@ -35,7 +59,7 @@ public class QuantityMeasurementApp {
         if (resultUnit == null) {
             throw new IllegalArgumentException("Result unit must not be null.");
         }
-        
+
         Quantity<U> quantity1 = new Quantity<>(value1, unit1);
         Quantity<U> quantity2 = new Quantity<>(value2, unit2);
         return quantity1.add(quantity2, resultUnit).getValue();
@@ -51,7 +75,7 @@ public class QuantityMeasurementApp {
         if (resultUnit == null) {
             throw new IllegalArgumentException("Result unit must not be null.");
         }
-        
+
         return quantity1.add(quantity2, resultUnit);
     }
 
@@ -62,7 +86,7 @@ public class QuantityMeasurementApp {
         if (quantity2 == null) {
             throw new IllegalArgumentException("Second quantity must not be null.");
         }
-        
+
         return quantity1.add(quantity2);
     }
 
@@ -70,7 +94,7 @@ public class QuantityMeasurementApp {
         if (quantity1 == null || quantity2 == null) {
             throw new IllegalArgumentException("Both quantities must not be null.");
         }
-        
+
         boolean isEqual = quantity1.equals(quantity2);
         System.out.printf("%s equals %s: %s%n", quantity1, quantity2, isEqual);
     }
@@ -88,40 +112,44 @@ public class QuantityMeasurementApp {
         if (targetUnit == null) {
             throw new IllegalArgumentException("Target unit must not be null.");
         }
-        
+
         Quantity<U> converted = quantity.convertTo(targetUnit);
         System.out.printf("Converting %s to %s: %.6f%n", quantity, targetUnit.getUnitName(), converted.getValue());
     }
 
     public static <U extends Measurable> void demonstrateConversion(double value, U fromUnit, U toUnit) {
         double result = convert(value, fromUnit, toUnit);
-        System.out.printf("Converting %.2f %s to %s: %.6f%n", value, fromUnit.getUnitName(), toUnit.getUnitName(), result);
+        System.out.printf("Converting %.2f %s to %s: %.6f%n", value, fromUnit.getUnitName(), toUnit.getUnitName(),
+                result);
     }
 
     public static <U extends Measurable> void demonstrateAddition(Quantity<U> quantity1, Quantity<U> quantity2) {
         if (quantity1 == null || quantity2 == null) {
             throw new IllegalArgumentException("Both quantities must not be null.");
         }
-        
+
         Quantity<U> result = quantity1.add(quantity2);
         System.out.printf("Adding %s + %s = %s%n", quantity1, quantity2, result);
     }
 
-    public static <U extends Measurable> void demonstrateAddition(Quantity<U> quantity1, Quantity<U> quantity2, U resultUnit) {
+    public static <U extends Measurable> void demonstrateAddition(Quantity<U> quantity1, Quantity<U> quantity2,
+            U resultUnit) {
         if (quantity1 == null || quantity2 == null) {
             throw new IllegalArgumentException("Both quantities must not be null.");
         }
         if (resultUnit == null) {
             throw new IllegalArgumentException("Result unit must not be null.");
         }
-        
+
         Quantity<U> result = quantity1.add(quantity2, resultUnit);
         System.out.printf("Adding %s + %s = %s%n", quantity1, quantity2, result);
     }
 
-    public static <U extends Measurable> void demonstrateAddition(double value1, U unit1, double value2, U unit2, U resultUnit) {
+    public static <U extends Measurable> void demonstrateAddition(double value1, U unit1, double value2, U unit2,
+            U resultUnit) {
         double result = add(value1, unit1, value2, unit2, resultUnit);
-        System.out.printf("Adding %.2f %s + %.2f %s = %.6f %s%n", value1, unit1.getUnitName(), value2, unit2.getUnitName(), result, resultUnit.getUnitName());
+        System.out.printf("Adding %.2f %s + %.2f %s = %.6f %s%n", value1, unit1.getUnitName(), value2,
+                unit2.getUnitName(), result, resultUnit.getUnitName());
     }
 
     public static <U extends Measurable> Quantity<U> subtract(Quantity<U> quantity1, Quantity<U> quantity2) {
@@ -131,11 +159,12 @@ public class QuantityMeasurementApp {
         if (quantity2 == null) {
             throw new IllegalArgumentException("Second quantity must not be null.");
         }
-        
+
         return quantity1.subtract(quantity2);
     }
 
-    public static <U extends Measurable> Quantity<U> subtract(Quantity<U> quantity1, Quantity<U> quantity2, U resultUnit) {
+    public static <U extends Measurable> Quantity<U> subtract(Quantity<U> quantity1, Quantity<U> quantity2,
+            U resultUnit) {
         if (quantity1 == null) {
             throw new IllegalArgumentException("First quantity must not be null.");
         }
@@ -145,7 +174,7 @@ public class QuantityMeasurementApp {
         if (resultUnit == null) {
             throw new IllegalArgumentException("Result unit must not be null.");
         }
-        
+
         return quantity1.subtract(quantity2, resultUnit);
     }
 
@@ -153,19 +182,20 @@ public class QuantityMeasurementApp {
         if (quantity1 == null || quantity2 == null) {
             throw new IllegalArgumentException("Both quantities must not be null.");
         }
-        
+
         Quantity<U> result = quantity1.subtract(quantity2);
         System.out.printf("Subtracting %s - %s = %s%n", quantity1, quantity2, result);
     }
 
-    public static <U extends Measurable> void demonstrateSubtraction(Quantity<U> quantity1, Quantity<U> quantity2, U resultUnit) {
+    public static <U extends Measurable> void demonstrateSubtraction(Quantity<U> quantity1, Quantity<U> quantity2,
+            U resultUnit) {
         if (quantity1 == null || quantity2 == null) {
             throw new IllegalArgumentException("Both quantities must not be null.");
         }
         if (resultUnit == null) {
             throw new IllegalArgumentException("Result unit must not be null.");
         }
-        
+
         Quantity<U> result = quantity1.subtract(quantity2, resultUnit);
         System.out.printf("Subtracting %s - %s = %s%n", quantity1, quantity2, result);
     }
@@ -177,11 +207,12 @@ public class QuantityMeasurementApp {
         if (quantity2 == null) {
             throw new IllegalArgumentException("Second quantity must not be null.");
         }
-        
+
         return quantity1.divide(quantity2);
     }
 
-    public static <U extends Measurable> Quantity<U> divide(Quantity<U> quantity1, Quantity<U> quantity2, U resultUnit) {
+    public static <U extends Measurable> Quantity<U> divide(Quantity<U> quantity1, Quantity<U> quantity2,
+            U resultUnit) {
         if (quantity1 == null) {
             throw new IllegalArgumentException("First quantity must not be null.");
         }
@@ -191,7 +222,7 @@ public class QuantityMeasurementApp {
         if (resultUnit == null) {
             throw new IllegalArgumentException("Result unit must not be null.");
         }
-        
+
         return quantity1.divide(quantity2, resultUnit);
     }
 
@@ -199,19 +230,20 @@ public class QuantityMeasurementApp {
         if (quantity1 == null || quantity2 == null) {
             throw new IllegalArgumentException("Both quantities must not be null.");
         }
-        
+
         Quantity<U> result = quantity1.divide(quantity2);
         System.out.printf("Dividing %s / %s = %s%n", quantity1, quantity2, result);
     }
 
-    public static <U extends Measurable> void demonstrateDivision(Quantity<U> quantity1, Quantity<U> quantity2, U resultUnit) {
+    public static <U extends Measurable> void demonstrateDivision(Quantity<U> quantity1, Quantity<U> quantity2,
+            U resultUnit) {
         if (quantity1 == null || quantity2 == null) {
             throw new IllegalArgumentException("Both quantities must not be null.");
         }
         if (resultUnit == null) {
             throw new IllegalArgumentException("Result unit must not be null.");
         }
-        
+
         Quantity<U> result = quantity1.divide(quantity2, resultUnit);
         System.out.printf("Dividing %s / %s = %s%n", quantity1, quantity2, result);
     }
@@ -243,11 +275,13 @@ public class QuantityMeasurementApp {
         demonstrateEquality(value1, unit1, value2, unit2);
     }
 
-    public static void demonstrateLengthAddition(double value1, LengthUnit unit1, double value2, LengthUnit unit2, LengthUnit resultUnit) {
+    public static void demonstrateLengthAddition(double value1, LengthUnit unit1, double value2, LengthUnit unit2,
+            LengthUnit resultUnit) {
         demonstrateAddition(value1, unit1, value2, unit2, resultUnit);
     }
 
-    public static void demonstrateLengthAddition(Quantity<LengthUnit> length1, Quantity<LengthUnit> length2, LengthUnit resultUnit) {
+    public static void demonstrateLengthAddition(Quantity<LengthUnit> length1, Quantity<LengthUnit> length2,
+            LengthUnit resultUnit) {
         demonstrateAddition(length1, length2, resultUnit);
     }
 
@@ -286,7 +320,8 @@ public class QuantityMeasurementApp {
         return QuantityMeasurementApp.convert(value, source, target);
     }
 
-    public static double addWeight(double value1, WeightUnit unit1, double value2, WeightUnit unit2, WeightUnit resultUnit) {
+    public static double addWeight(double value1, WeightUnit unit1, double value2, WeightUnit unit2,
+            WeightUnit resultUnit) {
         return QuantityMeasurementApp.<WeightUnit>add(value1, unit1, value2, unit2, resultUnit);
     }
 
@@ -306,11 +341,13 @@ public class QuantityMeasurementApp {
         demonstrateEquality(value1, unit1, value2, unit2);
     }
 
-    public static void demonstrateWeightAddition(double value1, WeightUnit unit1, double value2, WeightUnit unit2, WeightUnit resultUnit) {
+    public static void demonstrateWeightAddition(double value1, WeightUnit unit1, double value2, WeightUnit unit2,
+            WeightUnit resultUnit) {
         demonstrateAddition(value1, unit1, value2, unit2, resultUnit);
     }
 
-    public static void demonstrateWeightAddition(Quantity<WeightUnit> weight1, Quantity<WeightUnit> weight2, WeightUnit resultUnit) {
+    public static void demonstrateWeightAddition(Quantity<WeightUnit> weight1, Quantity<WeightUnit> weight2,
+            WeightUnit resultUnit) {
         demonstrateAddition(weight1, weight2, resultUnit);
     }
 
@@ -375,8 +412,8 @@ public class QuantityMeasurementApp {
             temp1.add(temp2);
             System.out.printf("  ERROR: Should have thrown UnsupportedOperationException for addition!%n");
         } catch (UnsupportedOperationException e) {
-            System.out.printf("  Unsupported Addition: %s + %s throws: %s%n", 
-                temp1, temp2, e.getMessage());
+            System.out.printf("  Unsupported Addition: %s + %s throws: %s%n",
+                    temp1, temp2, e.getMessage());
         }
     }
 
@@ -388,8 +425,8 @@ public class QuantityMeasurementApp {
             temp1.divide(temp2);
             System.out.printf("  ERROR: Should have thrown UnsupportedOperationException for division!%n");
         } catch (UnsupportedOperationException e) {
-            System.out.printf("  Unsupported Division: %s / %s throws: %s%n", 
-                temp1, temp2, e.getMessage());
+            System.out.printf("  Unsupported Division: %s / %s throws: %s%n",
+                    temp1, temp2, e.getMessage());
         }
     }
 
@@ -401,112 +438,46 @@ public class QuantityMeasurementApp {
             temp.multiply(scalar);
             System.out.printf("  ERROR: Should have thrown UnsupportedOperationException for multiplication!%n");
         } catch (UnsupportedOperationException e) {
-            System.out.printf("  Unsupported Multiplication: %s * %f throws: %s%n", 
-                temp, scalar, e.getMessage());
+            System.out.printf("  Unsupported Multiplication: %s * %f throws: %s%n",
+                    temp, scalar, e.getMessage());
         }
     }
 
     public static void demonstrateTemperatureCrossCategorySafety() {
         QuantityTemperature celsius = new QuantityTemperature(25.0, TemperatureUnit.CELSIUS);
         Quantity<LengthUnit> feet = new Quantity<>(5.0, LengthUnit.FEET);
-        
+
         boolean isEqual = celsius.equals(feet);
-        System.out.printf("  Cross-Category Type Safety: %s equals %s: %s (should be false)%n", 
-            celsius, feet, isEqual);
+        System.out.printf("  Cross-Category Type Safety: %s equals %s: %s (should be false)%n",
+                celsius, feet, isEqual);
     }
 
-   
-    
-    public static void main(String[] args) {
+        private void runSampleWorkflow() {
         System.out.println("QUANTITY MEASUREMENT APPLICATION\n");
-     
-        // Length Operations
-        System.out.println("LENGTH OPERATIONS:");
-        Quantity<LengthUnit> feet5 = new Quantity<>(5.0, LengthUnit.FEET);
-        Quantity<LengthUnit> inches24 = new Quantity<>(24.0, LengthUnit.INCH);
-        
-        System.out.printf("  Created: %s and %s%n", feet5, inches24);
-        System.out.printf("  Base units: %.2f + %.2f %n", 
-            feet5.toBaseUnit(), inches24.toBaseUnit(), AirthmaticOperation.ADD);
-        System.out.printf("  Result: %s%n", feet5.add(inches24));
-        
-        System.out.printf("  Base units: %.2f - %.2f %n", 
-            feet5.toBaseUnit(), inches24.toBaseUnit(), AirthmaticOperation.SUBTRACT);
-        System.out.printf("  Result: %s%n", feet5.subtract(inches24));
-        
-        System.out.printf("  Base units: %.2f / %.2f %n", 
-            inches24.toBaseUnit(), feet5.toBaseUnit(), AirthmaticOperation.DIVIDE);
-        System.out.printf("  Result: %s%n", inches24.divide(feet5));
-        
-        // Weight Operations
-        System.out.println("\nWEIGHT OPERATIONS:");
-        Quantity<WeightUnit> kg3 = new Quantity<>(3.0, WeightUnit.KILOGRAM);
-        Quantity<WeightUnit> g500 = new Quantity<>(500.0, WeightUnit.GRAM);
-        
-        System.out.printf("  Created: %s and %s%n", kg3, g500);
-        System.out.printf("  Base units: %.2f + %.2f %n", 
-            kg3.toBaseUnit(), g500.toBaseUnit(), AirthmaticOperation.ADD);
-        System.out.printf("  Result: %s%n", kg3.add(g500));
-        
-        System.out.printf("  Base units: %.2f - %.2f %n", 
-            kg3.toBaseUnit(), g500.toBaseUnit(), AirthmaticOperation.SUBTRACT);
-        System.out.printf("  Result: %s%n", kg3.subtract(g500));
-        
-        System.out.printf("  Base units: %.2f / %.2f %n", 
-            kg3.toBaseUnit(), g500.toBaseUnit(), AirthmaticOperation.DIVIDE);
-        System.out.printf("  Result: %s%n", kg3.divide(g500));
-        
-        // Volume Operations
-        System.out.println("\nVOLUME OPERATIONS:");
-        Quantity<VolumeUnit> litre2 = new Quantity<>(2.0, VolumeUnit.LITRE);
-        Quantity<VolumeUnit> ml500 = new Quantity<>(500.0, VolumeUnit.MILLILITRE);
-        
-        System.out.printf("  Created: %s and %s%n", litre2, ml500);
-        System.out.printf("  Base units: %.2f + %.2f %n", 
-            litre2.toBaseUnit(), ml500.toBaseUnit(), AirthmaticOperation.ADD);
-        System.out.printf("  Result: %s%n", litre2.add(ml500));
-        
-        System.out.printf("  Base units: %.2f - %.2f %n", 
-            litre2.toBaseUnit(), ml500.toBaseUnit(), AirthmaticOperation.SUBTRACT);
-        System.out.printf("  Result: %s%n", litre2.subtract(ml500));
-        
-        System.out.printf("  Base units: %.2f / %.2f %n", 
-            litre2.toBaseUnit(), ml500.toBaseUnit(), AirthmaticOperation.DIVIDE);
-        System.out.printf("  Result: %s%n", litre2.divide(ml500));
-        
-        // Temperature Operations (UC14)
-        System.out.println("\nTEMPERATURE OPERATIONS (UC14 - Selective Arithmetic Support):");
-        QuantityTemperature celsius0 = new QuantityTemperature(0.0, TemperatureUnit.CELSIUS);
-        QuantityTemperature celsius25 = new QuantityTemperature(25.0, TemperatureUnit.CELSIUS);
-        QuantityTemperature fahrenheit32 = new QuantityTemperature(32.0, TemperatureUnit.FAHRENHEIT);
-        QuantityTemperature kelvin273 = new QuantityTemperature(273.15, TemperatureUnit.KELVIN);
-        
-        System.out.println("\n  Supported Operations:");
-        System.out.println("    1. Temperature Equality (same and different units):");
-        demonstrateTemperatureEquality(celsius0, kelvin273);
-        demonstrateTemperatureEquality(celsius25, fahrenheit32);
-        
-        System.out.println("    2. Temperature Conversion (all unit pairs):");
-        demonstrateTemperatureConversion(celsius25, TemperatureUnit.FAHRENHEIT);
-        demonstrateTemperatureConversion(fahrenheit32, TemperatureUnit.CELSIUS);
-        demonstrateTemperatureConversion(celsius0, TemperatureUnit.KELVIN);
-        
-        System.out.println("    3. Temperature Subtraction (calculates temperature difference):");
-        demonstrateTemperatureSubtraction(celsius25, celsius0);
-        demonstrateTemperatureSubtraction(fahrenheit32, new QuantityTemperature(32.0, TemperatureUnit.FAHRENHEIT));
-        
-        System.out.println("\n  Unsupported Operations:");
-        System.out.println("    4. Addition throws UnsupportedOperationException:");
-        demonstrateUnsupportedTemperatureAddition(celsius25, celsius0);
-        
-        System.out.println("    5. Division throws UnsupportedOperationException:");
-        demonstrateUnsupportedTemperatureDivision(celsius25, celsius0);
-        
-        System.out.println("    6. Multiplication throws UnsupportedOperationException:");
-        demonstrateUnsupportedTemperatureMultiplication(celsius25, 2.0);
-        
-        System.out.println("\n  Cross-Category Type Safety:");
-        System.out.println("    7. Temperature cannot equal other categories:");
-        demonstrateTemperatureCrossCategorySafety();
+
+        QuantityDTO length = new QuantityDTO(5.0, QuantityDTO.LengthUnit.FEET);
+        QuantityDTO lengthConversion = controller.performConversion(length, QuantityDTO.LengthUnit.INCH);
+        System.out.printf("Length Conversion: %s -> %s%n", length, lengthConversion);
+
+        QuantityDTO weightSum = controller.performAddition(
+            new QuantityDTO(3.0, QuantityDTO.WeightUnit.KILOGRAM),
+            new QuantityDTO(500.0, QuantityDTO.WeightUnit.GRAM),
+            QuantityDTO.WeightUnit.KILOGRAM);
+        System.out.printf("Weight Addition: %s%n", weightSum);
+
+        boolean temperatureEquality = controller.performComparison(
+            new QuantityDTO(0.0, QuantityDTO.TemperatureUnit.CELSIUS),
+            new QuantityDTO(32.0, QuantityDTO.TemperatureUnit.FAHRENHEIT));
+        System.out.printf("Temperature Comparison: %s%n", temperatureEquality);
+
+        QuantityDTO temperatureDifference = controller.performSubtraction(
+            new QuantityDTO(212.0, QuantityDTO.TemperatureUnit.FAHRENHEIT),
+            new QuantityDTO(0.0, QuantityDTO.TemperatureUnit.CELSIUS),
+            QuantityDTO.TemperatureUnit.CELSIUS);
+        System.out.printf("Temperature Difference: %s%n", temperatureDifference);
+        }
+
+    public static void main(String[] args) {
+        getInstance().runSampleWorkflow();
     }
 }
