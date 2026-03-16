@@ -18,14 +18,15 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
 public class QuantityMeasurementDatabaseRepository implements IQuantityMeasurementRepository {
     private static final String INSERT_SQL = "INSERT INTO quantity_measurement_entity ("
-            + "id, operation_type, first_value, first_measurement_type, first_unit, "
-            + "second_value, second_measurement_type, second_unit, "
-            + "result_value, result_measurement_type, result_unit, comparison_result, "
+            + "id, operation_type, first_operand_value, first_measurement_type, first_unit, "
+            + "second_operand_value, second_measurement_type, second_unit, "
+            + "result_operand_value, result_measurement_type, result_unit, comparison_result, "
             + "error_message, successful, created_at"
             + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -256,7 +257,7 @@ public class QuantityMeasurementDatabaseRepository implements IQuantityMeasureme
     }
 
     private QuantityDTO extractQuantity(ResultSet resultSet, String prefix) throws SQLException {
-        Double value = (Double) resultSet.getObject(prefix + "_value");
+        Double value = (Double) resultSet.getObject(prefix + "_operand_value");
         String measurementType = resultSet.getString(prefix + "_measurement_type");
         String unit = resultSet.getString(prefix + "_unit");
 
@@ -349,12 +350,43 @@ public class QuantityMeasurementDatabaseRepository implements IQuantityMeasureme
             if (trimmedSql.isEmpty()) {
                 continue;
             }
-            try (PreparedStatement statement = connection.prepareStatement(trimmedSql)) {
+            String executableSql = normalizeSchemaStatement(trimmedSql);
+            try (PreparedStatement statement = connection.prepareStatement(executableSql)) {
                 statement.execute();
             } catch (SQLException exception) {
+                if (isIgnorableSchemaException(executableSql, exception)) {
+                    continue;
+                }
                 throw new DatabaseException("Unable to initialize schema.", exception);
             }
         }
+    }
+
+    private String normalizeSchemaStatement(String sql) {
+        String upperSql = sql.toUpperCase(Locale.ROOT);
+        if (upperSql.startsWith("CREATE INDEX IF NOT EXISTS")) {
+            return sql.replaceFirst("(?i)CREATE\\s+INDEX\\s+IF\\s+NOT\\s+EXISTS", "CREATE INDEX");
+        }
+        return sql;
+    }
+
+    private boolean isIgnorableSchemaException(String sql, SQLException exception) {
+        String upperSql = sql.toUpperCase(Locale.ROOT);
+        if (!upperSql.startsWith("CREATE INDEX")) {
+            return false;
+        }
+
+        if (exception.getErrorCode() == 1061) {
+            return true;
+        }
+
+        String message = exception.getMessage();
+        if (message == null) {
+            return false;
+        }
+
+        String normalizedMessage = message.toLowerCase(Locale.ROOT);
+        return normalizedMessage.contains("duplicate") && normalizedMessage.contains("index");
     }
 
     private interface StatementBinder {
