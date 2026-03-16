@@ -42,17 +42,52 @@ public class QuantityMeasurementEntity implements Serializable {
         this(operationType, firstOperand, secondOperand, null, null, errorMessage);
     }
 
+    public static QuantityMeasurementEntity fromPersisted(String id,
+            String operationType,
+            QuantityDTO firstOperand,
+            QuantityDTO secondOperand,
+            QuantityDTO result,
+            Boolean comparisonResult,
+            String errorMessage,
+            boolean successful,
+            LocalDateTime createdAt) {
+        return new QuantityMeasurementEntity(
+                id,
+                operationType,
+                firstOperand,
+                secondOperand,
+                result,
+                comparisonResult,
+                errorMessage,
+                Boolean.valueOf(successful),
+                createdAt);
+    }
+
     private QuantityMeasurementEntity(String operationType, QuantityDTO firstOperand, QuantityDTO secondOperand,
             QuantityDTO result, Boolean comparisonResult, String errorMessage) {
-        this.id = UUID.randomUUID().toString();
+        this(null, operationType, firstOperand, secondOperand, result, comparisonResult, errorMessage, null, null);
+    }
+
+    private QuantityMeasurementEntity(String id,
+            String operationType,
+            QuantityDTO firstOperand,
+            QuantityDTO secondOperand,
+            QuantityDTO result,
+            Boolean comparisonResult,
+            String errorMessage,
+            Boolean successful,
+            LocalDateTime createdAt) {
+        this.id = id != null ? id : UUID.randomUUID().toString();
         this.operationType = Objects.requireNonNull(operationType, "Operation type must not be null.");
         this.firstOperand = copyOf(firstOperand);
         this.secondOperand = copyOf(secondOperand);
         this.result = copyOf(result);
         this.comparisonResult = comparisonResult;
         this.errorMessage = errorMessage;
-        this.successful = errorMessage == null || errorMessage.trim().isEmpty();
-        this.createdAt = LocalDateTime.now();
+        this.successful = successful != null
+                ? successful.booleanValue()
+                : errorMessage == null || errorMessage.trim().isEmpty();
+        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
     }
 
     private static QuantityDTO copyOf(QuantityDTO quantityDTO) {

@@ -1,0 +1,3 @@
+com\example\QuantityMeasurementLayeredArchitectureTest.class
+com\example\repository\QuantityMeasurementDatabaseRepositoryTest.class
+com\example\QuantityMeasurementLayeredArchitectureTest$InMemoryQuantityMeasurementRepository.class

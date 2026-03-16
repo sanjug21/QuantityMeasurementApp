@@ -3,14 +3,20 @@ package com.example.factory;
 import com.example.controller.QuantityMeasurementController;
 import com.example.repository.IQuantityMeasurementRepository;
 import com.example.repository.QuantityMeasurementCacheRepository;
+import com.example.repository.QuantityMeasurementDatabaseRepository;
 import com.example.service.IQuantityMeasurementService;
 import com.example.service.QuantityMeasurementServiceImpl;
+import com.example.util.ApplicationConfig;
 
 public final class QuantityMeasurementFactory {
     private QuantityMeasurementFactory() {
     }
 
     public static IQuantityMeasurementRepository createRepository() {
+        ApplicationConfig config = ApplicationConfig.load();
+        if ("database".equalsIgnoreCase(config.getRepositoryType())) {
+            return new QuantityMeasurementDatabaseRepository(config);
+        }
         return QuantityMeasurementCacheRepository.getInstance();
     }
 

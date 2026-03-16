@@ -9,15 +9,18 @@ import com.example.domain.TemperatureUnit;
 import com.example.domain.WeightUnit;
 import com.example.dto.QuantityDTO;
 import com.example.factory.QuantityMeasurementFactory;
+import com.example.repository.IQuantityMeasurementRepository;
 
 public class QuantityMeasurementApp {
     private static final double EPSILON = 1e-6;
     private static final QuantityMeasurementApp INSTANCE = new QuantityMeasurementApp();
 
+    private final IQuantityMeasurementRepository repository;
     private final QuantityMeasurementController controller;
 
     private QuantityMeasurementApp() {
-        this.controller = QuantityMeasurementFactory.createController();
+        this.repository = QuantityMeasurementFactory.createRepository();
+        this.controller = QuantityMeasurementFactory.createController(repository);
     }
 
     public static QuantityMeasurementApp getInstance() {
@@ -26,6 +29,18 @@ public class QuantityMeasurementApp {
 
     public QuantityMeasurementController getController() {
         return controller;
+    }
+
+    public void deleteAllMeasurements() {
+        repository.deleteAll();
+    }
+
+    public void closeResources() {
+        repository.releaseResources();
+    }
+
+    public String getRepositoryStatistics() {
+        return repository.getPoolStatistics();
     }
 
     public static <U extends Measurable> double convert(double value, U source, U target) {
