@@ -34,7 +34,7 @@ class QuantityMeasurementControllerTest {
     @Test
     void shouldConvertQuantity() throws Exception {
         QuantityOperationResultDTO response = QuantityOperationResultDTO.builder()
-                .historyId(1L)
+                                .historyId("1")
                 .operationType("CONVERT")
                 .successful(Boolean.TRUE)
                 .resultQuantity(QuantityDTO.builder()
