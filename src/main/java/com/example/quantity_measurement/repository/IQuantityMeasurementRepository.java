@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface IQuantityMeasurementRepository extends JpaRepository<QuantityMeasurementEntity, Long> {
+public interface IQuantityMeasurementRepository extends JpaRepository<QuantityMeasurementEntity, String> {
     List<QuantityMeasurementEntity> findAllByOrderByCreatedAtAsc();
 
     List<QuantityMeasurementEntity> findByOperationTypeOrderByCreatedAtAsc(String operationType);

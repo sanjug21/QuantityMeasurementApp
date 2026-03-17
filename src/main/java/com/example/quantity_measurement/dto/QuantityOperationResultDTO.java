@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class QuantityOperationResultDTO {
-    private Long historyId;
+    private String historyId;
     private String operationType;
     private Boolean successful;
     private QuantityDTO firstQuantity;
