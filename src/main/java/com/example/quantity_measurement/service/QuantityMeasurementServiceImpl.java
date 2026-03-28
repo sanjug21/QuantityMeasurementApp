@@ -4,14 +4,19 @@ import com.example.quantity_measurement.dto.OperationRequestDTO;
 import com.example.quantity_measurement.dto.QuantityDTO;
 import com.example.quantity_measurement.dto.QuantityOperationResultDTO;
 import com.example.quantity_measurement.entity.QuantityMeasurementEntity;
+import com.example.quantity_measurement.entity.User;
 import com.example.quantity_measurement.enums.OperationType;
 import com.example.quantity_measurement.exception.QuantityMeasurementException;
+import com.example.quantity_measurement.exception.UserNotFoundException;
 import com.example.quantity_measurement.model.QuantityModel;
 import com.example.quantity_measurement.repository.IQuantityMeasurementRepository;
+import com.example.quantity_measurement.repository.UserManagementRepository;
 import com.example.quantity_measurement.util.QuantityMathHelper;
 import java.util.List;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class QuantityMeasurementServiceImpl implements IQuantityMeasurementService {
     private final IQuantityMeasurementRepository repository;
+    private final UserManagementRepository userManagementRepository;
 
     @Override
     @Transactional
@@ -118,16 +124,18 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
 
     @Override
     @Transactional(readOnly = true)
-    public List<QuantityMeasurementEntity> getMeasurementHistory() {
-        return repository.findAllByOrderByCreatedAtAsc();
+    public List<QuantityMeasurementEntity> getMeasurementHistoryForCurrentUser() {
+        User currentUser = getCurrentUser();
+        return repository.findByUserOrderByCreatedAtAsc(currentUser);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<QuantityMeasurementEntity> getMeasurementHistoryByOperation(String operationType) {
+    public List<QuantityMeasurementEntity> getMeasurementHistoryByOperationForCurrentUser(String operationType) {
+        User currentUser = getCurrentUser();
         String normalizedOperationType = normalizeRequiredValue(operationType, "Operation type is required.")
                 .toUpperCase(Locale.ROOT);
-        return repository.findByOperationTypeOrderByCreatedAtAsc(normalizedOperationType);
+        return repository.findByUserAndOperationTypeOrderByCreatedAtAsc(currentUser, normalizedOperationType);
     }
 
     private QuantityOperationResultDTO performArithmetic(
@@ -267,7 +275,9 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
             QuantityDTO result,
             Boolean comparisonResult) {
 
+        User currentUser = getCurrentUser();
         QuantityMeasurementEntity entity = new QuantityMeasurementEntity();
+        entity.setUser(currentUser);
         entity.setOperationType(operationType.name());
         setQuantity(entity, first, true);
         setQuantity(entity, second, false);
@@ -289,7 +299,9 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
                 : exception.getMessage();
 
         try {
+            User currentUser = getCurrentUser();
             QuantityMeasurementEntity failedEntity = new QuantityMeasurementEntity();
+            failedEntity.setUser(currentUser);
             failedEntity.setOperationType(operationType.name());
             setQuantity(failedEntity, first, true);
             setQuantity(failedEntity, second, false);
@@ -358,5 +370,14 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
                 .measurementType(measurementType)
                 .unitName(unit)
                 .build();
+    }
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new QuantityMeasurementException("User is not authenticated.");
+        }
+        String email = authentication.getName();
+        return userManagementRepository.findByEmail(email);
     }
 }

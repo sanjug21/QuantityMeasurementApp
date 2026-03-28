@@ -82,12 +82,12 @@ public class QuantityMeasurementController {
 
     @GetMapping("/history")
     public ResponseEntity<List<QuantityMeasurementEntity>> getHistory() {
-        return ResponseEntity.ok(quantityMeasurementService.getMeasurementHistory());
+        return ResponseEntity.ok(quantityMeasurementService.getMeasurementHistoryForCurrentUser());
     }
 
     @GetMapping("/history/operation/{operationType}")
     public ResponseEntity<List<QuantityMeasurementEntity>> getHistoryByOperation(
             @PathVariable String operationType) {
-        return ResponseEntity.ok(quantityMeasurementService.getMeasurementHistoryByOperation(operationType));
+        return ResponseEntity.ok(quantityMeasurementService.getMeasurementHistoryByOperationForCurrentUser(operationType));
     }
 }
