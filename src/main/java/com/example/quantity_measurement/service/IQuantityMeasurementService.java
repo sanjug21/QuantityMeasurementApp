@@ -21,7 +21,7 @@ public interface IQuantityMeasurementService {
 
     QuantityOperationResultDTO operate(OperationRequestDTO request);
 
-    List<QuantityMeasurementEntity> getMeasurementHistory();
+    List<QuantityMeasurementEntity> getMeasurementHistoryForCurrentUser();
 
-    List<QuantityMeasurementEntity> getMeasurementHistoryByOperation(String operationType);
+    List<QuantityMeasurementEntity> getMeasurementHistoryByOperationForCurrentUser(String operationType);
 }
