@@ -3,8 +3,9 @@ package com.example.quantity_measurement.util;
 import com.example.quantity_measurement.exception.QuantityMeasurementException;
 import java.util.Locale;
 
-public final class QuantityMathHelper {
+public class QuantityMathHelper {
     private static final double EPSILON = 1e-6;
+    private static final int PRECISION = 10; // Round to 10 decimal places
 
     private QuantityMathHelper() {
     }
@@ -21,7 +22,7 @@ public final class QuantityMathHelper {
         String normalizedFromUnit = normalizeUnit(fromUnit);
         String normalizedToUnit = normalizeUnit(toUnit);
 
-        return switch (normalizedMeasurementType) {
+        double result = switch (normalizedMeasurementType) {
             case "LengthUnit" -> {
                 double baseMeters = toMeters(value, normalizedFromUnit);
                 yield fromMeters(baseMeters, normalizedToUnit);
@@ -40,6 +41,8 @@ public final class QuantityMathHelper {
             }
             default -> throw new QuantityMeasurementException("Unsupported measurement type: " + measurementType);
         };
+        
+        return roundToNDecimalPlaces(result, PRECISION);
     }
 
     public static double add(double thisValue, String thisUnit, String thisMeasurementType,
@@ -236,5 +239,10 @@ public final class QuantityMathHelper {
             case "CELSIUS", "C", "FAHRENHEIT", "F", "KELVIN", "K" -> true;
             default -> false;
         };
+    }
+
+    private static double roundToNDecimalPlaces(double value, int n) {
+        double multiplier = Math.pow(10, n);
+        return Math.round(value * multiplier) / multiplier;
     }
 }

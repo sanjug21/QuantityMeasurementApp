@@ -47,10 +47,11 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
                     .unitName(resolvedTargetUnit)
                     .build();
 
-            QuantityMeasurementEntity persisted = repository.save(
-                    buildSuccessfulEntity(OperationType.CONVERT, sanitizedSource, null, resultQuantity, null));
-
-            return toResultDTO(persisted);
+            QuantityMeasurementEntity entity = buildSuccessfulEntity(OperationType.CONVERT, sanitizedSource, null, resultQuantity, null);
+            if (entity.getUser() != null) {
+                repository.save(entity);
+            }
+            return toResultDTO(entity);
         } catch (RuntimeException exception) {
             throw wrapAndRecordFailure(OperationType.CONVERT, sanitizedSource, null, exception);
         }
@@ -71,10 +72,11 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
                     sanitizedSecond.getUnitName(),
                     sanitizedSecond.getMeasurementType());
 
-            QuantityMeasurementEntity persisted = repository.save(
-                    buildSuccessfulEntity(OperationType.COMPARE, sanitizedFirst, sanitizedSecond, null, comparisonResult));
-
-            return toResultDTO(persisted);
+            QuantityMeasurementEntity entity = buildSuccessfulEntity(OperationType.COMPARE, sanitizedFirst, sanitizedSecond, null, comparisonResult);
+            if (entity.getUser() != null) {
+                repository.save(entity);
+            }
+            return toResultDTO(entity);
         } catch (RuntimeException exception) {
             throw wrapAndRecordFailure(OperationType.COMPARE, sanitizedFirst, sanitizedSecond, exception);
         }
@@ -200,10 +202,11 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
                     .unitName(resolvedResultUnit)
                     .build();
 
-            QuantityMeasurementEntity persisted = repository.save(
-                    buildSuccessfulEntity(operationType, sanitizedFirst, sanitizedSecond, resultQuantity, null));
-
-            return toResultDTO(persisted);
+            QuantityMeasurementEntity entity = buildSuccessfulEntity(operationType, sanitizedFirst, sanitizedSecond, resultQuantity, null);
+            if (entity.getUser() != null) {
+                repository.save(entity);
+            }
+            return toResultDTO(entity);
         } catch (RuntimeException exception) {
             throw wrapAndRecordFailure(operationType, sanitizedFirst, sanitizedSecond, exception);
         }
@@ -275,7 +278,7 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
             QuantityDTO result,
             Boolean comparisonResult) {
 
-        User currentUser = getCurrentUser();
+        User currentUser = getCurrentUserOrNull();
         QuantityMeasurementEntity entity = new QuantityMeasurementEntity();
         entity.setUser(currentUser);
         entity.setOperationType(operationType.name());
@@ -299,15 +302,17 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
                 : exception.getMessage();
 
         try {
-            User currentUser = getCurrentUser();
-            QuantityMeasurementEntity failedEntity = new QuantityMeasurementEntity();
-            failedEntity.setUser(currentUser);
-            failedEntity.setOperationType(operationType.name());
-            setQuantity(failedEntity, first, true);
-            setQuantity(failedEntity, second, false);
-            failedEntity.setErrorMessage(message);
-            failedEntity.setSuccessful(Boolean.FALSE);
-            repository.save(failedEntity);
+            User currentUser = getCurrentUserOrNull();
+            if (currentUser != null) {
+                QuantityMeasurementEntity failedEntity = new QuantityMeasurementEntity();
+                failedEntity.setUser(currentUser);
+                failedEntity.setOperationType(operationType.name());
+                setQuantity(failedEntity, first, true);
+                setQuantity(failedEntity, second, false);
+                failedEntity.setErrorMessage(message);
+                failedEntity.setSuccessful(Boolean.FALSE);
+                repository.save(failedEntity);
+            }
         } catch (RuntimeException suppressed) {
             exception.addSuppressed(suppressed);
         }
@@ -376,6 +381,15 @@ public class QuantityMeasurementServiceImpl implements IQuantityMeasurementServi
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new QuantityMeasurementException("User is not authenticated.");
+        }
+        String email = authentication.getName();
+        return userManagementRepository.findByEmail(email);
+    }
+
+    private User getCurrentUserOrNull() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            return null;
         }
         String email = authentication.getName();
         return userManagementRepository.findByEmail(email);
