@@ -1,6 +1,7 @@
 package com.example.quantity_measurement.config;
 
 import com.example.quantity_measurement.security.JwtAuthenticationFilter;
+import com.example.quantity_measurement.security.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -33,10 +35,14 @@ public class SecurityConfig {
             .cors(withDefaults()) // Apply CORS configuration
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/signup", "/api/auth/login", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                .requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/google", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                 .requestMatchers("/api/quantity/convert", "/api/quantity/compare", "/api/quantity/add", "/api/quantity/subtract", "/api/quantity/multiply", "/api/quantity/divide", "/api/quantity/operate").permitAll()
                 .requestMatchers("/api/quantity/history/**").authenticated()
                 .anyRequest().authenticated()
+            )
+            .oauth2Login(oauth2 -> oauth2
+                .successHandler(oAuth2AuthenticationSuccessHandler)
+                .authorizationEndpoint(endpoint -> endpoint.baseUri("/oauth2/authorization"))
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

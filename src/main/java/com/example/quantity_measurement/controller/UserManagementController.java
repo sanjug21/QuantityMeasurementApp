@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -33,5 +35,10 @@ public class UserManagementController {
     public ResponseEntity<UserDTO> getUserDetails() {
         UserDTO userDTO = userManagementService.getUserDetails();
         return ResponseEntity.ok(userDTO);
+    }
+
+    @GetMapping("/google")
+    public void googleLogin(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/oauth2/authorization/google");
     }
 }
