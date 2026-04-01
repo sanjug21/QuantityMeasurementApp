@@ -31,8 +31,14 @@ public class User {
     @Column(name = "email", nullable = false, length = 50)
     private String email;
     
-    @Column(name = "password", nullable = false, length = 100)
+    @Column(name = "password", length = 100)
     private String password;
+    
+    @Column(name = "provider", length = 50)
+    private String provider;
+    
+    @Column(name = "provider_id", length = 100)
+    private String providerId;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
