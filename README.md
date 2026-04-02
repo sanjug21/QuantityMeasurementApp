@@ -65,6 +65,25 @@ Create a build artifact:
 ./mvnw clean package
 ```
 
+## Deploying on Railway
+
+The application is ready for Railway and reads port/database settings from Railway environment variables.
+
+### Required variables
+
+- `PORT` (Railway provides this automatically)
+- `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER`, `MYSQLPASSWORD`
+- `JWT_SECRET_KEY`
+
+### Optional variables
+
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+
+### Important note
+
+- If the app and database are in different Railway services, never use `localhost` for DB host. Use Railway MySQL variables or service host instead.
+
 ## Branches
 
 - `main`: Production-ready baseline branch. Keep this branch stable and release-focused.
