@@ -35,7 +35,16 @@ public class SecurityConfig {
             .cors(withDefaults()) // Apply CORS configuration
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/google", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                .requestMatchers(
+                    "/api/auth/signup",
+                    "/api/auth/login",
+                    "/api/auth/google",
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/swagger-resources/**",
+                    "/webjars/**"
+                ).permitAll()
                 .requestMatchers("/api/quantity/convert", "/api/quantity/compare", "/api/quantity/add", "/api/quantity/subtract", "/api/quantity/multiply", "/api/quantity/divide", "/api/quantity/operate").permitAll()
                 .requestMatchers("/api/quantity/history/**").authenticated()
                 .anyRequest().authenticated()
