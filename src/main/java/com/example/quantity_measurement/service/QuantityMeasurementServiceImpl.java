@@ -7,7 +7,6 @@ import com.example.quantity_measurement.entity.QuantityMeasurementEntity;
 import com.example.quantity_measurement.entity.User;
 import com.example.quantity_measurement.enums.OperationType;
 import com.example.quantity_measurement.exception.QuantityMeasurementException;
-import com.example.quantity_measurement.exception.UserNotFoundException;
 import com.example.quantity_measurement.model.QuantityModel;
 import com.example.quantity_measurement.repository.IQuantityMeasurementRepository;
 import com.example.quantity_measurement.repository.UserManagementRepository;
