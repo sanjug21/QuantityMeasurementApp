@@ -1,0 +1,134 @@
+server:
+  port: ${SERVER_PORT}
+spring:
+  application:
+    name: Api-Gateway
+  cloud:
+    gateway:
+      enabled: true
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns:
+              - "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+      routes:
+        # Authentication API endpoints
+        - id: auth-signup
+          uri: ${AUTH_SERVICE_URL}
+          predicates:
+            - Path=/api/auth/signup
+
+        - id: auth-login
+          uri: ${AUTH_SERVICE_URL}
+          predicates:
+            - Path=/api/auth/login
+
+        - id: auth-me
+          uri: ${AUTH_SERVICE_URL}
+          predicates:
+            - Path=/api/auth/me
+          filters:
+            - JwtAuthentication
+
+        - id: auth-google
+          uri: ${AUTH_SERVICE_URL}
+          predicates:
+            - Path=/api/auth/google
+
+        - id: auth-oauth2
+          uri: ${AUTH_SERVICE_URL}
+          predicates:
+            - Path=/oauth2/authorization/google
+
+
+        # Authentication service API documentation
+        - id: auth-docs
+          uri: ${AUTH_SERVICE_URL}
+          predicates:
+            - Path=/api/auth/v3/api-docs
+          filters:
+            - RewritePath=/api/auth/v3/api-docs, /v3/api-docs
+
+        # Quantity operation endpoints
+        - id: quantity-convert
+          uri: ${OPERATIONS_SERVICE_URL}
+          predicates:
+            - Path=/api/quantity/convert
+
+        - id: quantity-compare
+          uri: ${OPERATIONS_SERVICE_URL}
+          predicates:
+            - Path=/api/quantity/compare
+
+        - id: quantity-add
+          uri: ${OPERATIONS_SERVICE_URL}
+          predicates:
+            - Path=/api/quantity/add
+
+        - id: quantity-subtract
+          uri: ${OPERATIONS_SERVICE_URL}
+          predicates:
+            - Path=/api/quantity/subtract
+
+        - id: quantity-multiply
+          uri: ${OPERATIONS_SERVICE_URL}
+          predicates:
+            - Path=/api/quantity/multiply
+
+        - id: quantity-divide
+          uri: ${OPERATIONS_SERVICE_URL}
+          predicates:
+            - Path=/api/quantity/divide
+
+        - id: quantity-operate
+          uri: ${OPERATIONS_SERVICE_URL}
+          predicates:
+            - Path=/api/quantity/operate
+
+        - id: quantity-history
+          uri: ${OPERATIONS_SERVICE_URL}
+          predicates:
+            - Path=/api/quantity/history/**
+          filters:
+            - JwtAuthentication
+
+        # Quantity service API documentation
+        - id: quantity-docs
+          uri: ${OPERATIONS_SERVICE_URL}
+          predicates:
+            - Path=/api/quantity/v3/api-docs
+          filters:
+            - RewritePath=/api/quantity/v3/api-docs, /v3/api-docs
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: Authentication API
+        url: /api/auth/v3/api-docs
+      - name: Quantity Operations API
+        url: /api/quantity/v3/api-docs
+  api-docs:
+    path: /v3/api-docs
+
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: "${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}"
