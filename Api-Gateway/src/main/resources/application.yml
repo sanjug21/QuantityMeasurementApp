@@ -52,6 +52,10 @@ spring:
           predicates:
             - Path=/oauth2/authorization/google
 
+        - id: auth-google-callback
+          uri: ${AUTH_SERVICE_URL}
+          predicates:
+            - Path=/login/oauth2/code/google/**
 
         # Authentication service API documentation
         - id: auth-docs
