@@ -1,0 +1,23 @@
+# Git
+.git
+.gitignore
+
+# Build output
+build
+out
+bin
+
+# IDE files
+.idea
+*.iml
+
+# Local environment/config
+.env
+*.log
+
+# Docker files not needed in context
+Dockerfile
+.dockerignore
+
+# Gradle caches
+.gradle
