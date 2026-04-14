@@ -26,40 +26,40 @@ spring:
       routes:
         # Authentication API endpoints
         - id: auth-signup
-          uri: ${AUTH_SERVICE_URL}
+          uri: lb://auth-service
           predicates:
             - Path=/api/auth/signup
 
         - id: auth-login
-          uri: ${AUTH_SERVICE_URL}
+          uri: lb://auth-service
           predicates:
             - Path=/api/auth/login
 
         - id: auth-me
-          uri: ${AUTH_SERVICE_URL}
+          uri: lb://auth-service
           predicates:
             - Path=/api/auth/me
           filters:
             - JwtAuthentication
 
         - id: auth-google
-          uri: ${AUTH_SERVICE_URL}
+          uri: lb://auth-service
           predicates:
             - Path=/api/auth/google
 
         - id: auth-oauth2
-          uri: ${AUTH_SERVICE_URL}
+          uri: lb://auth-service
           predicates:
             - Path=/oauth2/authorization/google
 
         - id: auth-google-callback
-          uri: ${AUTH_SERVICE_URL}
+          uri: lb://auth-service
           predicates:
             - Path=/login/oauth2/code/google/**
 
         # Authentication service API documentation
         - id: auth-docs
-          uri: ${AUTH_SERVICE_URL}
+          uri: lb://auth-service
           predicates:
             - Path=/api/auth/v3/api-docs
           filters:
@@ -67,42 +67,42 @@ spring:
 
         # Quantity operation endpoints
         - id: quantity-convert
-          uri: ${OPERATIONS_SERVICE_URL}
+          uri: lb://Measurement-Service
           predicates:
             - Path=/api/quantity/convert
 
         - id: quantity-compare
-          uri: ${OPERATIONS_SERVICE_URL}
+          uri: lb://Measurement-Service
           predicates:
             - Path=/api/quantity/compare
 
         - id: quantity-add
-          uri: ${OPERATIONS_SERVICE_URL}
+          uri: lb://Measurement-Service
           predicates:
             - Path=/api/quantity/add
 
         - id: quantity-subtract
-          uri: ${OPERATIONS_SERVICE_URL}
+          uri: lb://Measurement-Service
           predicates:
             - Path=/api/quantity/subtract
 
         - id: quantity-multiply
-          uri: ${OPERATIONS_SERVICE_URL}
+          uri: lb://Measurement-Service
           predicates:
             - Path=/api/quantity/multiply
 
         - id: quantity-divide
-          uri: ${OPERATIONS_SERVICE_URL}
+          uri: lb://Measurement-Service
           predicates:
             - Path=/api/quantity/divide
 
         - id: quantity-operate
-          uri: ${OPERATIONS_SERVICE_URL}
+          uri: lb://Measurement-Service
           predicates:
             - Path=/api/quantity/operate
 
         - id: quantity-history
-          uri: ${OPERATIONS_SERVICE_URL}
+          uri: lb://Measurement-Service
           predicates:
             - Path=/api/quantity/history/**
           filters:
@@ -110,7 +110,7 @@ spring:
 
         # Quantity service API documentation
         - id: quantity-docs
-          uri: ${OPERATIONS_SERVICE_URL}
+          uri: lb://Measurement-Service
           predicates:
             - Path=/api/quantity/v3/api-docs
           filters:
@@ -136,3 +136,7 @@ eureka:
   client:
     serviceUrl:
       defaultZone: "${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}"
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
